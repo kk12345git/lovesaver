@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pink-primary: #FF6FAE;
+  --pink-accent: #FF4DA6;
+  --pink-bg: #FFF0F6;
+  --pink-light: #FFD6E8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #FFF0F6;
+  color: #2D1B3D;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mobile safe area padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF0F6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FFB3D1;
+  border-radius: 3px;
+}
+
+/* Glassmorphism */
+.glass {
+  @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass;
+}
+
+.glass-dark {
+  @apply bg-pink-500/10 backdrop-blur-xl border border-pink-100/20 shadow-glass;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-[2.5rem] shadow-card p-6 border border-pink-50 transition-all duration-300 hover:shadow-card-hover;
+}
+
+/* Inner glow for cards */
+.inner-glow {
+  box-shadow: inset 0 0 20px rgba(255, 111, 174, 0.05);
+}
+
+/* Background Blobs */
+.blob {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 111, 174, 0.2) 0%, rgba(255, 240, 246, 0) 70%);
+  filter: blur(40px);
+  z-index: -1;
+  border-radius: 50%;
+  animation: float 10s ease-in-out infinite;
+}
+
+/* Pink button */
+.btn-primary {
+  @apply bg-pink-400 hover:bg-pink-500 text-white font-extrabold rounded-3xl px-8 py-4 transition-all duration-300 shadow-lg hover:shadow-pink-200/50 hover:-translate-y-0.5 active:scale-95;
+}
+
+.btn-secondary {
+  @apply bg-pink-50 hover:bg-pink-100 text-pink-500 font-extrabold rounded-3xl px-8 py-4 transition-all duration-300 border border-pink-200 hover:shadow-md;
+}
+
+/* Input styles */
+.input {
+  @apply w-full rounded-[1.5rem] border-2 border-transparent bg-pink-50/50 px-5 py-4 text-sm font-bold text-gray-700 placeholder-pink-300 focus:outline-none focus:bg-white focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition-all;
+}
+
+.label {
+  @apply block text-xs font-black uppercase tracking-wider text-pink-400 mb-2 ml-1;
+}
+
+/* Animation for modals */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Gradient pink text */
+.text-gradient-pink {
+  background: linear-gradient(135deg, #FF6FAE, #FF4DA6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Page transitions */
+.page-enter {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile-friendly bottom tab bar */
+.bottom-nav-active {
+  @apply text-pink-500 relative;
+}
+
+.bottom-nav-active::after {
+  content: '';
+  @apply absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-pink-500 rounded-full;
+}
