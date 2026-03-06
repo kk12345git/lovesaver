@@ -1,4 +1,4 @@
-import { createClient, GUEST_USER_ID } from "@/lib/supabase";
+import { createSupabaseServer, GUEST_USER_ID } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -22,9 +22,14 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export async function GET(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     // Get user + default categories
     const { data, error } = await supabase
@@ -39,9 +44,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     const body = await req.json();
     const { name, icon, color } = body;
@@ -61,9 +71,14 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     const body = await req.json();
     const { id, name, icon, color } = body;
@@ -81,9 +96,14 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

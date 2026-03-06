@@ -1,5 +1,6 @@
 "use client";
 
+import LogoutButton from "@/components/auth/LogoutButton";
 import BottomNav from "@/components/layout/BottomNav";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
@@ -32,7 +33,10 @@ export default function AppLayout({ children, title, headerRight }: AppLayoutPro
                         </div>
                     )}
                 </div>
-                {headerRight && <div className="animate-fade-in">{headerRight}</div>}
+                <div className="flex items-center gap-3">
+                    {headerRight}
+                    <LogoutButton />
+                </div>
             </header>
 
             {/* Main content with AnimatePresence */}

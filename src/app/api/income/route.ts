@@ -1,12 +1,15 @@
-import { createClient, GUEST_USER_ID } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const month = searchParams.get("month") || new Date().getMonth() + 1;
@@ -18,7 +21,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
         .from("income_entries")
         .select("*")
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .gte("date", startDate)
         .lte("date", endDate)
         .order("date", { ascending: false });
@@ -28,9 +31,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await req.json();
     const { amount, category, date, notes } = body;
@@ -41,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
         .from("income_entries")
-        .insert({ user_id: userId, amount: Number(amount), category, date, notes: notes || null })
+        .insert({ user_id: user.id, amount: Number(amount), category, date, notes: notes || null })
         .select()
         .single();
 
@@ -50,9 +56,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-    const supabase = createClient();
+    const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || GUEST_USER_ID;
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -61,7 +70,7 @@ export async function DELETE(req: NextRequest) {
         .from("income_entries")
         .delete()
         .eq("id", id!)
-        .eq("user_id", userId);
+        .eq("user_id", user.id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
