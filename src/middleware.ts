@@ -2,24 +2,22 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-    const HAS_URL = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const HAS_KEY = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    // 1. Guard against missing variables
-    if (!HAS_URL || !HAS_KEY) {
-        console.error("Middleware Sync Error: Missing Supabase Keys");
-        return NextResponse.next();
-    }
-
     let response = NextResponse.next({
         request: {
             headers: request.headers,
         },
     })
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+        return response
+    }
+
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
@@ -38,10 +36,12 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // IMPORTANT: Soft-getting user to prevent middleware failure
     const { data: { user } } = await supabase.auth.getUser()
 
-    const path = request.nextUrl.pathname
+    const url = request.nextUrl.clone()
+    const path = url.pathname
+
+    // Define app routes that need protection
     const isAppRoute = path.startsWith('/dashboard') ||
         path.startsWith('/expenses') ||
         path.startsWith('/income') ||
@@ -52,19 +52,11 @@ export async function middleware(request: NextRequest) {
     const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
 
     if (!user && isAppRoute) {
-        const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
-    if (user && isAuthRoute) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
-    }
-
-    if (user && path === '/') {
-        const url = request.nextUrl.clone()
+    if (user && (isAuthRoute || path === '/')) {
         url.pathname = '/dashboard'
         return NextResponse.redirect(url)
     }
@@ -74,13 +66,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - api (handled separately)
-         */
-        '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }
