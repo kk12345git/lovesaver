@@ -2,6 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    // DIAGNOSTIC LOGS: Check if keys are actually present in the edge runtime
+    console.log("LoveSaver Middleware: URL?", !!process.env.NEXT_PUBLIC_SUPABASE_URL, "KEY?", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -11,54 +14,38 @@ export async function middleware(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+    // If variables are missing, don't crash, just let the request through
     if (!supabaseUrl || !supabaseKey) {
+        console.error("MIDDLEWARE ERROR: Missing Supabase Environment Variables in Vercel settings.");
         return response
     }
 
-    const supabase = createServerClient(
-        supabaseUrl,
-        supabaseKey,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll()
+    try {
+        const supabase = createServerClient(
+            supabaseUrl,
+            supabaseKey,
+            {
+                cookies: {
+                    getAll() {
+                        return request.cookies.getAll()
+                    },
+                    setAll(cookiesToSet) {
+                        cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+                        response = NextResponse.next({
+                            request,
+                        })
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            response.cookies.set(name, value, options)
+                        )
+                    },
                 },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-                    response = NextResponse.next({
-                        request,
-                    })
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options)
-                    )
-                },
-            },
-        }
-    )
+            }
+        )
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const url = request.nextUrl.clone()
-    const path = url.pathname
-
-    // Define app routes that need protection
-    const isAppRoute = path.startsWith('/dashboard') ||
-        path.startsWith('/expenses') ||
-        path.startsWith('/income') ||
-        path.startsWith('/budget') ||
-        path.startsWith('/categories') ||
-        path.startsWith('/insights')
-
-    const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
-
-    if (!user && isAppRoute) {
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
-    }
-
-    if (user && (isAuthRoute || path === '/')) {
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
+        // Just refresh the session, no redirection logic yet to keep it simple
+        await supabase.auth.getUser()
+    } catch (e) {
+        console.error("MIDDLEWARE EXCEPTION:", e);
     }
 
     return response
