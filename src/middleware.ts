@@ -2,6 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    const HAS_URL = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const HAS_KEY = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    // 1. Guard against missing variables
+    if (!HAS_URL || !HAS_KEY) {
+        console.error("Middleware Sync Error: Missing Supabase Keys");
+        return NextResponse.next();
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -29,10 +38,9 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // IMPORTANT: Getting the user with try-catch to avoid 500 when auth fails
+    // IMPORTANT: Soft-getting user to prevent middleware failure
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Protected routes logic
     const path = request.nextUrl.pathname
     const isAppRoute = path.startsWith('/dashboard') ||
         path.startsWith('/expenses') ||
@@ -68,11 +76,11 @@ export const config = {
     matcher: [
         /*
          * Match all request paths except for the ones starting with:
-         * - api (API routes) -> Supabase auth handles these via createSupabaseServer
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * - api (handled separately)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }
