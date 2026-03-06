@@ -30,10 +30,18 @@ export async function signup(formData: FormData) {
         password: formData.get('password') as string,
     }
 
-    const { error } = await supabase.auth.signUp(data)
+    const { data: authData, error } = await supabase.auth.signUp(data)
 
     if (error) {
         return { error: error.message }
+    }
+
+    // If session is null, it means email confirmation is likely enabled
+    if (!authData.session) {
+        return {
+            message: "Success! Please check your email to confirm your account before logging in. 💌",
+            pendingConfirmation: true
+        }
     }
 
     revalidatePath('/', 'layout')

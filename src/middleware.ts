@@ -42,8 +42,31 @@ export async function middleware(request: NextRequest) {
             }
         )
 
-        // Just refresh the session, no redirection logic yet to keep it simple
-        await supabase.auth.getUser()
+        // IMPORTANT: Getting user and protecting routes
+        const { data: { user } } = await supabase.auth.getUser()
+
+        const url = request.nextUrl.clone()
+        const path = url.pathname
+
+        // Define app routes that need protection
+        const isAppRoute = path.startsWith('/dashboard') ||
+            path.startsWith('/expenses') ||
+            path.startsWith('/income') ||
+            path.startsWith('/budget') ||
+            path.startsWith('/categories') ||
+            path.startsWith('/insights')
+
+        const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
+
+        if (!user && isAppRoute) {
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+
+        if (user && (isAuthRoute || path === '/')) {
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        }
     } catch (e) {
         console.error("MIDDLEWARE EXCEPTION:", e);
     }

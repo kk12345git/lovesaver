@@ -8,13 +8,19 @@ import Link from "next/link";
 export default function SignupPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
         setError(null);
+        setSuccess(null);
         const result = await signup(formData);
+
         if (result?.error) {
             setError(result.error);
+            setLoading(false);
+        } else if (result?.message) {
+            setSuccess(result.message);
             setLoading(false);
         }
     };
@@ -69,30 +75,32 @@ export default function SignupPage() {
                             />
                         </div>
 
-                        {error && (
+                        {success && (
                             <motion.p
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="text-red-500 text-xs font-bold text-center bg-red-50 py-3 rounded-2xl border border-red-100"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-pink-600 text-xs font-bold text-center bg-pink-50 py-4 px-6 rounded-2xl border border-pink-100"
                             >
-                                ⚠️ {error}
+                                {success}
                             </motion.p>
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-primary w-full !py-5 shadow-xl shadow-pink-200 flex items-center justify-center gap-2 group"
-                        >
-                            {loading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <>
-                                    Join the Club 💖
-                                    <span className="group-hover:translate-x-1 transition-transform">💎</span>
-                                </>
-                            )}
-                        </button>
+                        {!success && (
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-primary w-full !py-5 shadow-xl shadow-pink-200 flex items-center justify-center gap-2 group"
+                            >
+                                {loading ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        Join the Club 💖
+                                        <span className="group-hover:translate-x-1 transition-transform">💎</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </form>
 
                     <div className="mt-8 text-center">

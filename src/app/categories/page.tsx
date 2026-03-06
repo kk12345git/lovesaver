@@ -33,16 +33,26 @@ export default function CategoriesPage() {
     const addCategory = async () => {
         if (!newCat.name) return;
         try {
-            await fetch("/api/categories", {
+            setLoading(true);
+            const res = await fetch("/api/categories", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newCat),
             });
-            setNewCat({ name: "", icon: "✨", color: "#FF6FAE" });
-            setShowAddModal(false);
-            fetchCategories();
+            const data = await res.json();
+
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+            } else {
+                setNewCat({ name: "", icon: "✨", color: "#FF6FAE" });
+                setShowAddModal(false);
+                fetchCategories();
+            }
         } catch (error) {
             console.error("Error adding category:", error);
+            alert("Failed to add category. Are you logged in?");
+        } finally {
+            setLoading(false);
         }
     };
 
