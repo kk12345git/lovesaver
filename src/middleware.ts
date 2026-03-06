@@ -2,8 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({
-        request,
+    let response = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
     })
 
     const supabase = createServerClient(
@@ -16,69 +18,61 @@ export async function middleware(request: NextRequest) {
                 },
                 setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-                    supabaseResponse = NextResponse.next({
+                    response = NextResponse.next({
                         request,
                     })
                     cookiesToSet.forEach(({ name, value, options }) =>
-                        supabaseResponse.cookies.set(name, value, options)
+                        response.cookies.set(name, value, options)
                     )
                 },
             },
         }
     )
 
-    // IMPORTANT: Avoid writing any logic between createServerClient and
-    // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-    // why your multi-factor authentication is failing.
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+    // IMPORTANT: Getting the user with try-catch to avoid 500 when auth fails
+    const { data: { user } } = await supabase.auth.getUser()
 
     // Protected routes logic
-    const isAppRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-        request.nextUrl.pathname.startsWith('/expenses') ||
-        request.nextUrl.pathname.startsWith('/income') ||
-        request.nextUrl.pathname.startsWith('/budget') ||
-        request.nextUrl.pathname.startsWith('/categories') ||
-        request.nextUrl.pathname.startsWith('/insights')
+    const path = request.nextUrl.pathname
+    const isAppRoute = path.startsWith('/dashboard') ||
+        path.startsWith('/expenses') ||
+        path.startsWith('/income') ||
+        path.startsWith('/budget') ||
+        path.startsWith('/categories') ||
+        path.startsWith('/insights')
 
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
-        request.nextUrl.pathname.startsWith('/signup')
+    const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
 
     if (!user && isAppRoute) {
-        // no user, potentially respond by redirecting the user to the login page
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
     if (user && isAuthRoute) {
-        // user is already logged in, redirect to dashboard
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
         return NextResponse.redirect(url)
     }
 
-    // Home page redirect to dashboard if logged in
-    if (user && request.nextUrl.pathname === '/') {
+    if (user && path === '/') {
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
         return NextResponse.redirect(url)
     }
 
-    return supabaseResponse
+    return response
 }
 
 export const config = {
     matcher: [
         /*
          * Match all request paths except for the ones starting with:
+         * - api (API routes) -> Supabase auth handles these via createSupabaseServer
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
          */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }
