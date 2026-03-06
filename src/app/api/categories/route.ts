@@ -2,7 +2,7 @@ import { createClient, GUEST_USER_ID } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 // Default expense categories to seed on first use
-export const DEFAULT_CATEGORIES = [
+const DEFAULT_CATEGORIES = [
     { name: "Food & Dining", icon: "🍕", color: "#FF6FAE" },
     { name: "Shopping", icon: "🛍️", color: "#FF4DA6" },
     { name: "Transport", icon: "🚗", color: "#FF8C69" },
