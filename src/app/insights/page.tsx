@@ -80,7 +80,7 @@ export default function InsightsPage() {
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-xs font-bold text-gray-500">{cat.percent}%</span>
                                                     <span className="text-sm font-black" style={{ color: cat.color }}>
-                                                        {formatCurrency(cat.total)}
+                                                        {formatCurrency(cat.amount)}
                                                     </span>
                                                 </div>
                                             </div>
