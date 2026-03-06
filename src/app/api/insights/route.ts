@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { SpendingInsight, CategorySpending } from "@/lib/types";
 import { getSavingsMessage } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();

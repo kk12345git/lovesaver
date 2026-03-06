@@ -1,6 +1,8 @@
 import { createClient, GUEST_USER_ID } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // Default expense categories to seed on first use
 const DEFAULT_CATEGORIES = [
     { name: "Food & Dining", icon: "🍕", color: "#FF6FAE" },
