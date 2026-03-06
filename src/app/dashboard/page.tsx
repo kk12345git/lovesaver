@@ -44,7 +44,7 @@ export default function Dashboard() {
         }
     };
 
-    const containerVariants: any = {
+    const containerVariants = {
         hidden: { opacity: 0 },
         show: {
             opacity: 1,
@@ -55,7 +55,7 @@ export default function Dashboard() {
         }
     };
 
-    const itemVariants: any = {
+    const itemVariants = {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
     };

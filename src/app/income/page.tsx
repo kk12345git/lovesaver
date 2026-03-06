@@ -154,7 +154,7 @@ export default function IncomePage() {
 
             <AnimatePresence>
                 {showModal && (
-                    <AddIncomeModal onClose={() => { setShowModal(false); fetchIncome(); }} />
+                    <AddIncomeModal onSuccess={fetchIncome} onClose={() => setShowModal(false)} />
                 )}
             </AnimatePresence>
         </AppLayout>

@@ -73,8 +73,7 @@ export async function GET(req: NextRequest) {
 
     if (type === "insights") {
         const insights: SpendingInsight[] = [];
-        const savings = total_income - total_expenses;
-        const savingsMsg = getSavingsMessage(savings);
+        const savingsMsg = getSavingsMessage(savings_percent);
 
         insights.push({
             type: balance >= 0 ? "positive" : "warning",
