@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { signup, signInWithGoogle } from "@/app/auth/actions";
+import { signup } from "@/app/auth/actions";
+import { createClient } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -19,6 +20,25 @@ function SignupContent() {
             setError(decodeURIComponent(errorParam));
         }
     }, [searchParams]);
+
+    const handleGoogleLogin = async () => {
+        setGoogleLoading(true);
+        setError(null);
+        try {
+            const supabase = createClient();
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+            // Browser will redirect
+        } catch (err: any) {
+            setError(err.message || "Failed to connect to Google");
+            setGoogleLoading(false);
+        }
+    };
 
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
@@ -38,8 +58,8 @@ function SignupContent() {
     return (
         <div className="min-h-screen bg-[#FFF5F7] flex flex-col items-center justify-center px-6 relative overflow-hidden">
             {/* Background Blobs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-pink-200 rounded-full blur-[100px] opacity-50 animate-pulse-slow" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-purple-200 rounded-full blur-[100px] opacity-50 animate-pulse-slow" style={{ animationDelay: "2s" }} />
+            <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] bg-pink-200 rounded-full blur-[100px] opacity-50 animate-pulse-slow" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-purple-200 rounded-full blur-[100px] opacity-50 animate-pulse-slow" style={{ animationDelay: "2s" }} />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -132,17 +152,7 @@ function SignupContent() {
                             </div>
 
                             <button
-                                onClick={async () => {
-                                    setGoogleLoading(true);
-                                    setError(null);
-                                    const result = await signInWithGoogle();
-                                    if (result?.error) {
-                                        setError(result.error);
-                                        setGoogleLoading(false);
-                                    } else if (result?.url) {
-                                        window.location.href = result.url;
-                                    }
-                                }}
+                                onClick={handleGoogleLogin}
                                 disabled={loading || googleLoading}
                                 className="w-full py-4 rounded-2xl border-2 border-pink-50 bg-white hover:bg-pink-50 text-gray-700 font-black text-[11px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50"
                             >
@@ -171,6 +181,7 @@ function SignupContent() {
                     </div>
                 </div>
 
+                {/* Footer Quote */}
                 <p className="text-center text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] mt-12">
                     LoveSaver • Secure & Beautiful
                 </p>
