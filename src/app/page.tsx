@@ -20,6 +20,7 @@ import {
     DepthOfField,
     ChromaticAberration
 } from "@react-three/postprocessing";
+import { motion as motion3d } from "framer-motion-3d";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import * as THREE from "three";
@@ -140,11 +141,11 @@ export default function LandingPage() {
                     <directionalLight position={[0, 5, 5]} intensity={1} />
 
                     <Suspense fallback={null}>
-                        <group style={{ opacity: crystalOpacity }}>
-                            <mesh scale={crystalScale}>
+                        <motion3d.group animate={{ opacity: 1 }} style={{ opacity: crystalOpacity } as any}>
+                            <motion3d.mesh scale={crystalScale as any}>
                                 <CrystalHeart />
-                            </mesh>
-                        </group>
+                            </motion3d.mesh>
+                        </motion3d.group>
                         <FinancialShards />
 
                         <Environment preset="night" />
