@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
 
         // Special case: OAuth callback
         if (request.nextUrl.pathname === '/auth/callback') {
-            return response; // Handled by the route handler
+            return response;
         }
 
         const { data: { user } } = await supabase.auth.getUser()
@@ -49,30 +49,57 @@ export async function middleware(request: NextRequest) {
         const url = request.nextUrl.clone()
         const path = url.pathname
 
-        // Define routes
+        // Define route categories
+        const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
+        const isLandingPage = path === '/'
+        const isOnboarding = path.startsWith('/onboarding')
+
         const isAppRoute = path.startsWith('/dashboard') ||
             path.startsWith('/expenses') ||
             path.startsWith('/income') ||
             path.startsWith('/budget') ||
             path.startsWith('/categories') ||
-            path.startsWith('/insights')
+            path.startsWith('/insights') ||
+            path.startsWith('/settings') ||
+            isOnboarding
 
-        const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup') || path === '/'
+        // 1. Unauthenticated users: Allow Landing, Login, Signup. Redirect App -> Landing
+        if (!user) {
+            if (isAppRoute && !isLandingPage) {
+                const redirectResponse = NextResponse.redirect(new URL('/', request.url))
+                return redirectResponse
+            }
+            return response
+        }
 
-        // Protection Logic
-        if (!user && isAppRoute) {
-            const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-            response.cookies.getAll().forEach((cookie) => {
-                redirectResponse.cookies.set(cookie.name, cookie.value);
-            });
+        // 2. Authenticated users: Check Onboarding status
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_completed')
+            .eq('id', user.id)
+            .single()
+
+        const hasCompletedOnboarding = profile?.onboarding_completed
+
+        // If authenticated and on Auth routes or Landing -> Go to Dashboard (or Onboarding)
+        if (isAuthRoute || isLandingPage) {
+            const target = hasCompletedOnboarding ? '/dashboard' : '/onboarding'
+            const redirectResponse = NextResponse.redirect(new URL(target, request.url))
+            response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie.name, cookie.value))
             return redirectResponse
         }
 
-        if (user && isAuthRoute) {
+        // If authenticated but not onboarded -> Force Onboarding (unless already there)
+        if (!hasCompletedOnboarding && !isOnboarding && isAppRoute) {
+            const redirectResponse = NextResponse.redirect(new URL('/onboarding', request.url))
+            response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie.name, cookie.value))
+            return redirectResponse
+        }
+
+        // If authenticated and onboarded but tries to enter Onboarding -> Go to Dashboard
+        if (hasCompletedOnboarding && isOnboarding) {
             const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
-            response.cookies.getAll().forEach((cookie) => {
-                redirectResponse.cookies.set(cookie.name, cookie.value);
-            });
+            response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie.name, cookie.value))
             return redirectResponse
         }
     } catch (e) {
