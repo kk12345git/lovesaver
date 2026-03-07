@@ -141,7 +141,7 @@ export default function LandingPage() {
                     <directionalLight position={[0, 5, 5]} intensity={1} />
 
                     <Suspense fallback={null}>
-                        <motion3d.group animate={{ opacity: 1 }} style={{ opacity: crystalOpacity } as any}>
+                        <motion3d.group>
                             <motion3d.mesh scale={crystalScale as any}>
                                 <CrystalHeart />
                             </motion3d.mesh>
