@@ -2,8 +2,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-    // DIAGNOSTIC LOGS: Check if keys are actually present in the edge runtime
-    console.log("LoveSaver Middleware: URL?", !!process.env.NEXT_PUBLIC_SUPABASE_URL, "KEY?", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     let response = NextResponse.next({
         request: {
@@ -11,13 +11,10 @@ export async function middleware(request: NextRequest) {
         },
     })
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    // If variables are missing, don't crash, just let the request through
+    // Safety check: Don't crash if keys are missing
     if (!supabaseUrl || !supabaseKey) {
-        console.error("MIDDLEWARE ERROR: Missing Supabase Environment Variables in Vercel settings.");
-        return response
+        console.warn("LoveSaver: Supabase keys missing in environment. Auth will be disabled.");
+        return response;
     }
 
     try {
@@ -42,7 +39,11 @@ export async function middleware(request: NextRequest) {
             }
         )
 
-        // Refresh session
+        // Special case: OAuth callback
+        if (request.nextUrl.pathname === '/auth/callback') {
+            return response; // Handled by the route handler
+        }
+
         const { data: { user } } = await supabase.auth.getUser()
 
         const url = request.nextUrl.clone()
@@ -56,21 +57,19 @@ export async function middleware(request: NextRequest) {
             path.startsWith('/categories') ||
             path.startsWith('/insights')
 
-        const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
+        const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup') || path === '/'
 
         // Protection Logic
         if (!user && isAppRoute) {
             const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-            // IMPORTANT: Copy cookies to redirect response!
             response.cookies.getAll().forEach((cookie) => {
                 redirectResponse.cookies.set(cookie.name, cookie.value);
             });
             return redirectResponse
         }
 
-        if (user && (isAuthRoute || path === '/')) {
+        if (user && isAuthRoute) {
             const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
-            // IMPORTANT: Copy cookies to redirect response!
             response.cookies.getAll().forEach((cookie) => {
                 redirectResponse.cookies.set(cookie.name, cookie.value);
             });

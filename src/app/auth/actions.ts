@@ -1,18 +1,16 @@
 'use server'
 
-import { createSupabaseServer } from '@/lib/supabase'
+import { createSupabaseServer, getURL } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 export async function login(formData: FormData) {
     const supabase = createSupabaseServer()
 
-    const data = {
-        email: formData.get('email') as string,
-        password: formData.get('password') as string,
-    }
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
 
-    const { error } = await supabase.auth.signInWithPassword(data)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
         return { error: error.message }
@@ -25,27 +23,49 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
     const supabase = createSupabaseServer()
 
-    const data = {
-        email: formData.get('email') as string,
-        password: formData.get('password') as string,
-    }
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
 
-    const { data: authData, error } = await supabase.auth.signUp(data)
+    const { data: authData, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            emailRedirectTo: `${getURL()}auth/callback`,
+        }
+    })
 
     if (error) {
         return { error: error.message }
     }
 
-    // If session is null, it means email confirmation is likely enabled
+    // If session is null, email confirmation is likely enabled
     if (!authData.session) {
         return {
-            message: "Success! Please check your email to confirm your account before logging in. 💌",
+            message: "Check your email for the confirmation link! 💌",
             pendingConfirmation: true
         }
     }
 
     revalidatePath('/', 'layout')
     redirect('/dashboard')
+}
+
+export async function signInWithGoogle() {
+    const supabase = createSupabaseServer()
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: `${getURL()}auth/callback`,
+        },
+    })
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    if (data.url) {
+        redirect(data.url)
+    }
 }
 
 export async function logout() {
