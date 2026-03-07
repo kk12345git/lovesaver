@@ -151,7 +151,7 @@ export default function LandingPage() {
                         <Environment preset="night" />
 
                         {/* Post-Processing - THE MAGIC */}
-                        <EffectComposer disableNormalPass>
+                        <EffectComposer enableNormalPass={false}>
                             <Bloom
                                 luminanceThreshold={1}
                                 mipmapBlur
