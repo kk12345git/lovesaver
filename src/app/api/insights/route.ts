@@ -1,4 +1,5 @@
-import { createSupabaseServer } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { GUEST_USER_ID } from "@/lib/supabase/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentMonth, getCurrentYear, calculateSavings, calculateSavingsPercent, calculateBudgetUsedPercent, getSavingsMessage } from "@/lib/utils";
 import { SpendingInsight, CategorySpending } from "@/lib/types";

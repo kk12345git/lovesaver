@@ -1,46 +1,57 @@
-import { createSupabaseServer } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { GUEST_USER_ID } from "@/lib/supabase/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(req.url);
-    const month = searchParams.get("month") || new Date().getMonth() + 1;
-    const year = searchParams.get("year") || new Date().getFullYear();
+    const userId = user?.id || GUEST_USER_ID;
 
     const { data, error } = await supabase
-        .from("budgets")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("month", month)
-        .eq("year", year)
-        .maybeSingle();
+        .from('budgets')
+        .select(`
+            *,
+            categories (*)
+        `)
+        .eq('user_id', userId);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
     const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await req.json();
-    const { amount, month, year } = body;
+    const userId = user?.id || GUEST_USER_ID;
+    const body = await request.json();
 
     const { data, error } = await supabase
-        .from("budgets")
-        .upsert({ user_id: user.id, month, year, amount }, { onConflict: "user_id,month,year" })
+        .from('budgets')
+        .insert([{ ...body, user_id: userId }])
+        .select()
+        .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
+}
+
+export async function PUT(request: Request) {
+    const supabase = createSupabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const userId = user?.id || GUEST_USER_ID;
+    const body = await request.json();
+    const { id, ...updateData } = body;
+
+    const { data, error } = await supabase
+        .from('budgets')
+        .update(updateData)
+        .eq('id', id)
+        .eq('user_id', userId)
         .select()
         .single();
 

@@ -1,6 +1,6 @@
 'use server'
 
-import { createSupabaseServer, getURL } from '@/lib/supabase'
+import { createSupabaseServer, getURL } from "@/lib/supabase/server";
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 

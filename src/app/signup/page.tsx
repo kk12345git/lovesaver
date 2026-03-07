@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { signup } from "@/app/auth/actions";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

@@ -1,4 +1,5 @@
-import { createSupabaseServer, GUEST_USER_ID } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { GUEST_USER_ID } from "@/lib/supabase/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";

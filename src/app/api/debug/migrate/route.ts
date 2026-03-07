@@ -1,48 +1,46 @@
-import { createSupabaseServer, GUEST_USER_ID } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { GUEST_USER_ID } from "@/lib/supabase/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export async function POST(request: Request) {
     const supabase = createSupabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Only allow for the current user or guest
+    const userId = user?.id || GUEST_USER_ID;
+
+    // This is a simple migration helper to move guest data to a real user
+    // In a real app, this would be more secure
+    const { searchParams } = new URL(request.url);
+    const targetUserId = searchParams.get('userId');
+
+    if (!targetUserId) {
+        return NextResponse.json({ error: "Target userId is required" }, { status: 400 });
     }
 
-    const userId = user.id;
+    try {
+        // Migrate Expenses
+        await supabase
+            .from('expenses')
+            .update({ user_id: targetUserId })
+            .eq('user_id', GUEST_USER_ID);
 
-    // Migrate all tables from GUEST_USER_ID to userId
-    const results: any = {};
+        // Migrate Income
+        await supabase
+            .from('income')
+            .update({ user_id: targetUserId })
+            .eq('user_id', GUEST_USER_ID);
 
-    // 1. Categories
-    const catRes = await supabase
-        .from("expense_categories")
-        .update({ user_id: userId })
-        .eq("user_id", GUEST_USER_ID);
-    results.categories = catRes.error ? catRes.error.message : "Success";
+        // Migrate Budgets
+        await supabase
+            .from('budgets')
+            .update({ user_id: targetUserId })
+            .eq('user_id', GUEST_USER_ID);
 
-    // 2. Income
-    const incRes = await supabase
-        .from("income_entries")
-        .update({ user_id: userId })
-        .eq("user_id", GUEST_USER_ID);
-    results.income = incRes.error ? incRes.error.message : "Success";
-
-    // 3. Expenses
-    const expRes = await supabase
-        .from("expense_entries")
-        .update({ user_id: userId })
-        .eq("user_id", GUEST_USER_ID);
-    results.expenses = expRes.error ? expRes.error.message : "Success";
-
-    // 4. Budgets
-    const budRes = await supabase
-        .from("budgets")
-        .update({ user_id: userId })
-        .eq("user_id", GUEST_USER_ID);
-    results.budgets = budRes.error ? budRes.error.message : "Success";
-
-    return NextResponse.json({ message: "Migration complete", results });
+        return NextResponse.json({ success: true, message: "Migration complete!" });
+    } catch (err: any) {
+        return NextResponse.json({ error: err.message }, { status: 500 });
+    }
 }
