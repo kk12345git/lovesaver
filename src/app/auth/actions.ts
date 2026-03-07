@@ -64,8 +64,10 @@ export async function signInWithGoogle() {
     }
 
     if (data.url) {
-        redirect(data.url)
+        return { url: data.url }
     }
+
+    return { error: "Failed to generate Google login URL" }
 }
 
 export async function logout() {
