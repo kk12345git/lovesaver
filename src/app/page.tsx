@@ -158,7 +158,11 @@ export default function LandingPage() {
                                 intensity={1.5}
                                 radius={0.4}
                             />
-                            <ChromaticAberration offset={new THREE.Vector2(0.002, 0.002)} />
+                            <ChromaticAberration
+                                offset={new THREE.Vector2(0.002, 0.002)}
+                                radialModulation={false}
+                                modulationOffset={0}
+                            />
                             <Noise opacity={0.05} />
                             <Vignette eskil={false} offset={0.1} darkness={1.1} />
                         </EffectComposer>
