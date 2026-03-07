@@ -12,8 +12,11 @@ export async function GET() {
         user_id: user?.id || null,
         env: {
             url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-            key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+            key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            site_url: process.env.NEXT_PUBLIC_SITE_URL || "MISSING",
+            vercel_url: process.env.NEXT_PUBLIC_VERCEL_URL || "MISSING"
         },
+        callback_sample: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://lovesaver.vercel.app'}/auth/callback`,
         counts: {}
     };
 
