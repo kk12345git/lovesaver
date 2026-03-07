@@ -42,13 +42,13 @@ export async function middleware(request: NextRequest) {
             }
         )
 
-        // IMPORTANT: Getting user and protecting routes
+        // Refresh session
         const { data: { user } } = await supabase.auth.getUser()
 
         const url = request.nextUrl.clone()
         const path = url.pathname
 
-        // Define app routes that need protection
+        // Define routes
         const isAppRoute = path.startsWith('/dashboard') ||
             path.startsWith('/expenses') ||
             path.startsWith('/income') ||
@@ -58,14 +58,23 @@ export async function middleware(request: NextRequest) {
 
         const isAuthRoute = path.startsWith('/login') || path.startsWith('/signup')
 
+        // Protection Logic
         if (!user && isAppRoute) {
-            url.pathname = '/login'
-            return NextResponse.redirect(url)
+            const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
+            // IMPORTANT: Copy cookies to redirect response!
+            response.cookies.getAll().forEach((cookie) => {
+                redirectResponse.cookies.set(cookie.name, cookie.value);
+            });
+            return redirectResponse
         }
 
         if (user && (isAuthRoute || path === '/')) {
-            url.pathname = '/dashboard'
-            return NextResponse.redirect(url)
+            const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
+            // IMPORTANT: Copy cookies to redirect response!
+            response.cookies.getAll().forEach((cookie) => {
+                redirectResponse.cookies.set(cookie.name, cookie.value);
+            });
+            return redirectResponse
         }
     } catch (e) {
         console.error("MIDDLEWARE EXCEPTION:", e);
