@@ -77,9 +77,9 @@ export async function middleware(request: NextRequest) {
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
-            .single()
+            .maybeSingle()
 
-        const hasCompletedOnboarding = profile?.onboarding_completed
+        const hasCompletedOnboarding = profile?.onboarding_completed || false
 
         // If authenticated and on Auth routes or Landing -> Go to Dashboard (or Onboarding)
         if (isAuthRoute || isLandingPage) {
