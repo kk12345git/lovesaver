@@ -42,22 +42,37 @@ export async function GET(req: NextRequest) {
     const totalExpenses = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
     const monthlyBudget = budget?.amount || 0;
 
-    // 2. Calculate category breakdown
-    const categorySpending: CategorySpending[] = categories
-        .map((cat: any) => {
-            const amount = expenses
-                .filter((e: any) => e.category_id === cat.id)
-                .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
-            return {
-                category_id: cat.id,
-                name: cat.name,
-                color: cat.color,
-                icon: cat.icon,
-                amount,
-                percent: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0
-            };
-        })
-        .filter((c: any) => c.amount > 0)
+    // 2. Calculate category breakdown (grouped by name to avoid duplicates)
+    const categoryMap: Record<string, { amount: number, color: string, icon: string, id: string }> = {};
+    
+    categories.forEach((cat: any) => {
+        const amount = expenses
+            .filter((e: any) => e.category_id === cat.id)
+            .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+        
+        if (amount > 0) {
+            if (categoryMap[cat.name]) {
+                categoryMap[cat.name].amount += amount;
+            } else {
+                categoryMap[cat.name] = {
+                    amount,
+                    color: cat.color,
+                    icon: cat.icon,
+                    id: cat.id
+                };
+            }
+        }
+    });
+
+    const categorySpending: CategorySpending[] = Object.entries(categoryMap)
+        .map(([name, data]) => ({
+            category_id: data.id,
+            name,
+            amount: data.amount,
+            color: data.color,
+            icon: data.icon,
+            percent: totalExpenses > 0 ? Math.round((data.amount / totalExpenses) * 100) : 0
+        }))
         .sort((a: any, b: any) => b.amount - a.amount);
 
     // 3. Generate actionable insights
@@ -98,10 +113,13 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-        totalIncome,
-        totalExpenses,
-        monthlyBudget,
-        categorySpending,
+        total_income: totalIncome,
+        total_expenses: totalExpenses,
+        balance: savings,
+        budget_amount: monthlyBudget,
+        budget_used_percent: budgetUsedPercent,
+        savings_percent: savingsPercent,
+        category_spending: categorySpending,
         insights
     });
 }

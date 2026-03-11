@@ -73,15 +73,17 @@ body {
 
 /* Pink button */
 .btn-primary {
-  @apply relative overflow-hidden bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-pink-200 transition-all duration-300;
+  @apply relative overflow-hidden bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 text-white px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-pink-200/50 transition-all duration-500 flex items-center justify-center gap-2 select-none;
+  box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.5);
 }
 
 .btn-primary:hover {
-  @apply -translate-y-1 shadow-2xl shadow-pink-300 scale-[1.02];
+  @apply -translate-y-1.5 scale-[1.03];
+  box-shadow: 0 20px 40px -10px rgba(236, 72, 153, 0.6);
 }
 
 .btn-primary:active {
-  @apply translate-y-0 scale-[0.98];
+  @apply translate-y-0.5 scale-[0.98] duration-100;
 }
 
 .btn-primary::after {
@@ -94,11 +96,12 @@ body {
 }
 
 .btn-secondary {
-  @apply bg-white/70 backdrop-blur-md text-pink-500 px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-widest text-sm border-2 border-pink-100 shadow-lg shadow-pink-50 transition-all duration-300;
+  @apply bg-white/40 backdrop-blur-xl text-pink-500 px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-xs border-2 border-pink-100/50 shadow-xl shadow-pink-50/50 transition-all duration-500 flex items-center justify-center gap-2 select-none;
 }
 
 .btn-secondary:hover {
-  @apply bg-pink-50 -translate-y-1 shadow-xl border-pink-200;
+  @apply bg-white border-pink-300 -translate-y-1.5 shadow-2xl;
+  box-shadow: 0 15px 30px -10px rgba(255, 111, 174, 0.2);
 }
 
 /* Input styles */
