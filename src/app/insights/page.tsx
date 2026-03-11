@@ -11,6 +11,9 @@ interface InsightsData {
     totalExpenses: number;
     totalIncome: number;
     monthlyBudget: number;
+    dailyBurnRate?: number;
+    discretionaryPercent?: number;
+    savingsForecast?: number;
 }
 
 const insightBg: Record<string, string> = {
@@ -50,6 +53,37 @@ export default function InsightsPage() {
                     <div className="text-center py-10 text-gray-400">Analyzing your finances...</div>
                 ) : (
                     <>
+                        {/* Daily Metrics Row */}
+                        <div className="grid grid-cols-2 gap-3 px-1">
+                            {data?.dailyBurnRate !== undefined && (
+                                <div className="card p-3 bg-white/80 backdrop-blur-sm border-none shadow-sm text-center">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Burn Rate</p>
+                                    <p className="text-lg font-black text-pink-500">{formatCurrency(data.dailyBurnRate)}<span className="text-[10px] font-normal text-gray-400">/day</span></p>
+                                </div>
+                            )}
+                            {data?.discretionaryPercent !== undefined && (
+                                <div className="card p-3 bg-white/80 backdrop-blur-sm border-none shadow-sm text-center">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Lifestyle Spend</p>
+                                    <p className="text-lg font-black text-purple-500">{data.discretionaryPercent}%</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Forecast Alert */}
+                        {data?.savingsForecast !== undefined && data.savingsForecast !== 0 && (
+                            <div className={`card border-none shadow-sm bg-gradient-to-r ${data.savingsForecast > 0 ? 'from-green-500 to-emerald-400' : 'from-orange-500 to-red-400'} text-white p-4`}>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-white/20 p-2 rounded-xl text-xl">
+                                        {data.savingsForecast > 0 ? "🚀" : "📉"}
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase opacity-80">EOM Savings Forecast</p>
+                                        <p className="text-xl font-black">{formatCurrency(data.savingsForecast)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Insights */}
                         <div className="space-y-3">
                             {data?.insights.map((insight, i) => (
@@ -67,26 +101,28 @@ export default function InsightsPage() {
 
                         {/* Category spending breakdown */}
                         {data?.categorySpending && data.categorySpending.length > 0 && (
-                            <div className="card">
-                                <h3 className="font-bold text-gray-700 mb-3">Category Breakdown</h3>
-                                <div className="space-y-3">
+                            <div className="card shadow-sm border-none">
+                                <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <span>🥧</span> Category Breakdown
+                                </h3>
+                                <div className="space-y-4">
                                     {data.categorySpending.map((cat) => (
                                         <div key={cat.category_id}>
                                             <div className="flex items-center justify-between mb-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-base">{cat.icon}</span>
-                                                    <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
+                                                    <span className="text-lg">{cat.icon}</span>
+                                                    <span className="text-sm font-bold text-gray-700">{cat.name}</span>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-gray-500">{cat.percent}%</span>
-                                                    <span className="text-sm font-black" style={{ color: cat.color }}>
+                                                <div className="flex items-center gap-2 text-right">
+                                                    <span className="text-sm font-black text-gray-800">
                                                         {formatCurrency(cat.amount)}
                                                     </span>
+                                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">{cat.percent}%</span>
                                                 </div>
                                             </div>
-                                            <div className="w-full bg-gray-100 rounded-full h-2">
+                                            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                                                 <div
-                                                    className="h-2 rounded-full transition-all duration-700"
+                                                    className="h-full rounded-full transition-all duration-1000 ease-out"
                                                     style={{ width: `${cat.percent}%`, backgroundColor: cat.color }}
                                                 />
                                             </div>

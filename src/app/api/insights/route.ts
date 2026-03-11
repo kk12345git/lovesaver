@@ -81,11 +81,62 @@ export async function GET(req: NextRequest) {
     const savingsPercent = calculateSavingsPercent(totalIncome, totalExpenses);
     const budgetUsedPercent = calculateBudgetUsedPercent(totalExpenses, monthlyBudget);
 
+    // Days in month calculation
+    const today = new Date();
+    const isCurrentMonth = today.getMonth() + 1 === month && today.getFullYear() === year;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const currentDay = isCurrentMonth ? today.getDate() : daysInMonth;
+    const remainingDays = daysInMonth - currentDay;
+
+    // Daily Burn Rate
+    const dailyBurnRate = currentDay > 0 ? Math.round(totalExpenses / currentDay) : 0;
+    
+    // Savings Forecast
+    const estimatedExtraExpenses = dailyBurnRate * remainingDays;
+    const projectedTotalExpenses = totalExpenses + estimatedExtraExpenses;
+    const savingsForecast = totalIncome - projectedTotalExpenses;
+
     insights.push({
         type: savings >= 0 ? "success" : "warning",
         icon: savings >= 0 ? "💰" : "⚠️",
         message: getSavingsMessage(savingsPercent)
     });
+
+    // 4. Advanced Insights
+    
+    // Discretionary vs Essential analysis
+    const essentialCategories = ["Food", "Groceries", "Rent", "Utilities", "Bills", "Transport", "Commute", "Health", "Education", "Insurance"];
+    const essentialSpent = categorySpending
+        .filter(c => essentialCategories.some(e => c.name.toLowerCase().includes(e.toLowerCase())))
+        .reduce((sum, c) => sum + c.amount, 0);
+    
+    const discretionarySpent = totalExpenses - essentialSpent;
+    const discretionaryPercent = totalExpenses > 0 ? Math.round((discretionarySpent / totalExpenses) * 100) : 0;
+
+    if (discretionaryPercent > 40) {
+        insights.push({
+            type: "warning",
+            icon: "🎭",
+            message: `Discretionary spending is high (${discretionaryPercent}%). Consider cutting back on non-essentials to boost savings.`
+        });
+    }
+
+    // Forecast message
+    if (isCurrentMonth && remainingDays > 0) {
+        if (savingsForecast < 0) {
+            insights.push({
+                type: "warning",
+                icon: "📉",
+                message: `At your current rate of ${formatCurrency(dailyBurnRate)}/day, you might end the month with a ${formatCurrency(Math.abs(savingsForecast))} deficit.`
+            });
+        } else if (savingsForecast < totalIncome * 0.1) {
+            insights.push({
+                type: "tip",
+                icon: "💡",
+                message: `Track carefully! Your projected end-of-month savings is approx ${formatCurrency(savingsForecast)}.`
+            });
+        }
+    }
 
     if (monthlyBudget > 0) {
         if (budgetUsedPercent >= 100) {
@@ -103,23 +154,40 @@ export async function GET(req: NextRequest) {
         }
     }
 
-    // Top spending category insight
+    // Top spending category insight with contextual suggestions
     if (categorySpending.length > 0) {
+        const topCat = categorySpending[0];
+        let tip = `Your top spending is on ${topCat.name}. Try to look for ways to save here.`;
+        
+        const catName = topCat.name.toLowerCase();
+        if (catName.includes("food") || catName.includes("dining")) {
+            tip = `High ${topCat.name} spend detected. Suggestion: Try meal prepping or reducing weekend takeaways to save up to 30%.`;
+        } else if (catName.includes("shopping") || catName.includes("amazon")) {
+            tip = `Shopping is your top expense. Try the "24-hour rule"—wait a day before making non-essential purchases.`;
+        } else if (catName.includes("transport") || catName.includes("fuel")) {
+            tip = `Transport costs are high. Explore carpooling or public transit passes to reduce this monthly cost.`;
+        } else if (catName.includes("subscription")) {
+            tip = `Multiple subscriptions detected. Audit unused services to free up extra cash monthly.`;
+        }
+
         insights.push({
             type: "tip",
             icon: "💡",
-            message: `Your top spending is on ${categorySpending[0].name}. Try to look for ways to save here.`
+            message: tip
         });
     }
 
     return NextResponse.json({
-        total_income: totalIncome,
-        total_expenses: totalExpenses,
+        totalIncome: totalIncome,
+        totalExpenses: totalExpenses,
         balance: savings,
-        budget_amount: monthlyBudget,
-        budget_used_percent: budgetUsedPercent,
-        savings_percent: savingsPercent,
-        category_spending: categorySpending,
+        budgetAmount: monthlyBudget,
+        budgetUsedPercent: budgetUsedPercent,
+        savingsPercent: savingsPercent,
+        categorySpending: categorySpending,
+        dailyBurnRate,
+        discretionaryPercent,
+        savingsForecast: isCurrentMonth ? savingsForecast : 0,
         insights
     });
 }
