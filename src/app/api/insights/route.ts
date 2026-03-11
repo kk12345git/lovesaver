@@ -18,10 +18,17 @@ export async function GET(req: NextRequest) {
     const month = parseInt(searchParams.get("month") || getCurrentMonth().toString());
     const year = parseInt(searchParams.get("year") || getCurrentYear().toString());
 
+    // Calculate date range for the month
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    // Calculate first day of next month to safely capture everything up to the end of current month
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    const endDate = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
+
     // 1. Fetch all data for the user/month
     const [incomeRes, expenseRes, budgetRes, categoryRes] = await Promise.all([
-        supabase.from("income_entries").select("amount").eq("user_id", user.id).gte("date", `${year}-${String(month).padStart(2, "0")}-01`).lte("date", `${year}-${String(month).padStart(2, "0")}-31`),
-        supabase.from("expense_entries").select("amount, category_id").eq("user_id", user.id).gte("date", `${year}-${String(month).padStart(2, "0")}-01`).lte("date", `${year}-${String(month).padStart(2, "0")}-31`),
+        supabase.from("income_entries").select("amount").eq("user_id", user.id).gte("date", startDate).lt("date", endDate),
+        supabase.from("expense_entries").select("amount, category_id").eq("user_id", user.id).gte("date", startDate).lt("date", endDate),
         supabase.from("budgets").select("amount").eq("user_id", user.id).eq("month", month).eq("year", year).maybeSingle(),
         supabase.from("expense_categories").select("*").or(`user_id.eq.${user.id},is_default.eq.true`)
     ]);
@@ -31,16 +38,16 @@ export async function GET(req: NextRequest) {
     const budget = budgetRes.data;
     const categories = categoryRes.data || [];
 
-    const totalIncome = income.reduce((sum, i) => sum + (i.amount || 0), 0);
-    const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const totalIncome = income.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+    const totalExpenses = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
     const monthlyBudget = budget?.amount || 0;
 
     // 2. Calculate category breakdown
     const categorySpending: CategorySpending[] = categories
-        .map(cat => {
+        .map((cat: any) => {
             const amount = expenses
-                .filter(e => e.category_id === cat.id)
-                .reduce((sum, e) => sum + (e.amount || 0), 0);
+                .filter((e: any) => e.category_id === cat.id)
+                .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
             return {
                 category_id: cat.id,
                 name: cat.name,
@@ -50,8 +57,8 @@ export async function GET(req: NextRequest) {
                 percent: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0
             };
         })
-        .filter(c => c.amount > 0)
-        .sort((a, b) => b.amount - a.amount);
+        .filter((c: any) => c.amount > 0)
+        .sort((a: any, b: any) => b.amount - a.amount);
 
     // 3. Generate actionable insights
     const insights: SpendingInsight[] = [];

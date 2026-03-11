@@ -73,16 +73,37 @@ body {
 
 /* Pink button */
 .btn-primary {
-  @apply bg-pink-400 hover:bg-pink-500 text-white font-extrabold rounded-3xl px-8 py-4 transition-all duration-300 shadow-lg hover:shadow-pink-200/50 hover:-translate-y-0.5 active:scale-95;
+  @apply relative overflow-hidden bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-pink-200 transition-all duration-300;
+}
+
+.btn-primary:hover {
+  @apply -translate-y-1 shadow-2xl shadow-pink-300 scale-[1.02];
+}
+
+.btn-primary:active {
+  @apply translate-y-0 scale-[0.98];
+}
+
+.btn-primary::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full transition-transform duration-1000 skew-x-12;
+}
+
+.btn-primary:hover::after {
+  @apply translate-x-[200%];
 }
 
 .btn-secondary {
-  @apply bg-pink-50 hover:bg-pink-100 text-pink-500 font-extrabold rounded-3xl px-8 py-4 transition-all duration-300 border border-pink-200 hover:shadow-md;
+  @apply bg-white/70 backdrop-blur-md text-pink-500 px-8 py-4 rounded-[2.5rem] font-black uppercase tracking-widest text-sm border-2 border-pink-100 shadow-lg shadow-pink-50 transition-all duration-300;
+}
+
+.btn-secondary:hover {
+  @apply bg-pink-50 -translate-y-1 shadow-xl border-pink-200;
 }
 
 /* Input styles */
 .input {
-  @apply w-full rounded-[1.5rem] border-2 border-transparent bg-pink-50/50 px-5 py-4 text-sm font-bold text-gray-700 placeholder-pink-300 focus:outline-none focus:bg-white focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition-all;
+  @apply w-full bg-gray-50/50 backdrop-blur-sm px-6 py-4 rounded-[2rem] border-2 border-transparent focus:border-pink-300 focus:bg-white focus:ring-4 focus:ring-pink-100 outline-none transition-all duration-300 font-bold text-gray-700 placeholder:text-gray-300;
 }
 
 .label {

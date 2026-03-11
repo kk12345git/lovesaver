@@ -7,12 +7,36 @@ export function createSupabaseServer() {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-        console.error("Supabase server-side environment variables are missing!");
+        const errorMsg = "Supabase server-side environment variables are missing! Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your Vercel Project Settings.";
+        console.error(errorMsg);
+        
+        return {
+            auth: {
+                signInWithPassword: async () => ({ error: { message: errorMsg } }),
+                signUp: async () => ({ error: { message: errorMsg } }),
+                signInWithOAuth: async () => ({ error: { message: errorMsg } }),
+                signOut: async () => ({ error: { message: errorMsg } }),
+                getUser: async () => ({ data: { user: null }, error: { message: errorMsg } }),
+                exchangeCodeForSession: async () => ({ error: { message: errorMsg } }),
+            },
+            from: () => ({
+                select: () => ({
+                    eq: () => ({ 
+                        maybeSingle: async () => ({ data: null, error: { message: errorMsg } }),
+                        single: async () => ({ data: null, error: { message: errorMsg } })
+                    }),
+                    maybeSingle: async () => ({ data: null, error: { message: errorMsg } }),
+                    single: async () => ({ data: null, error: { message: errorMsg } }),
+                    head: async () => ({ count: 0, error: { message: errorMsg } }),
+                }),
+                insert: () => ({ select: () => ({ single: async () => ({ data: null, error: { message: errorMsg } }) }) }),
+            })
+        } as any;
     }
 
     return createServerClient(
-        supabaseUrl || "",
-        supabaseKey || "",
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
