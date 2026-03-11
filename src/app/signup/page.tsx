@@ -77,7 +77,13 @@ function SignupContent() {
                         <span className="text-4xl">💎</span>
                     </motion.div>
                     <h1 className="text-3xl font-black text-gray-800 tracking-tight">Create Account</h1>
-                    <p className="text-gray-500 font-medium mt-2">Start your premium financial journey 🚀</p>
+                    {!process.env.NEXT_PUBLIC_SUPABASE_URL ? (
+                        <p className="text-red-500 font-bold mt-2 bg-red-50 py-2 px-4 rounded-xl inline-block mx-auto border border-red-100">
+                            🚫 FIX REQUIRED: Vercel settings missing
+                        </p>
+                    ) : (
+                        <p className="text-gray-500 font-medium mt-2">Start your premium financial journey 🚀</p>
+                    )}
                 </div>
 
                 {/* Form Card */}

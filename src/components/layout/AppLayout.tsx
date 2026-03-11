@@ -39,6 +39,15 @@ export default function AppLayout({ children, title, headerRight }: AppLayoutPro
                 </div>
             </header>
 
+            {!process.env.NEXT_PUBLIC_SUPABASE_URL && (
+                <div className="mx-6 mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-2xl animate-shake">
+                    <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Configuration Required ⚠️</p>
+                    <p className="text-xs font-bold text-red-500 leading-tight">
+                        Missing NEXT_PUBLIC_SUPABASE_URL! Please add it to your Vercel Project Settings and Redeploy.
+                    </p>
+                </div>
+            )}
+
             {/* Main content with AnimatePresence */}
             <main className="flex-1 pb-28 px-4 z-10 relative">
                 <AnimatePresence mode="wait">
