@@ -30,7 +30,7 @@ export default function AppLayout({ children, title, headerRight, loading, showB
     const isDashboard = pathname === "/dashboard";
 
     return (
-        <div className="min-h-screen bg-pinkBg flex flex-col max-w-lg mx-auto relative overflow-hidden">
+        <div className="min-h-[100dvh] bg-pinkBg flex flex-col w-full max-w-lg mx-auto relative overflow-x-hidden">
             {/* Loading Overlay */}
             <AnimatePresence>
                 {loading && (
@@ -59,7 +59,7 @@ export default function AppLayout({ children, title, headerRight, loading, showB
             <div className="blob -bottom-20 left-10 animate-float" style={{ animationDelay: "4s", background: "radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, rgba(255, 240, 246, 0) 70%)" }} />
 
             {/* Header */}
-            <header className="px-6 pt-10 pb-6 flex items-center justify-between sticky top-0 z-40 bg-pinkBg/60 backdrop-blur-xl border-b border-pink-100/30">
+            <header className="px-4 sm:px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 flex items-center justify-between sticky top-0 z-40 bg-pinkBg/80 backdrop-blur-xl border-b border-pink-100/30">
                 <div className="flex items-center gap-3">
                     {showBack ? (
                         <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export default function AppLayout({ children, title, headerRight, loading, showB
             )}
 
             {/* Main content */}
-            <main className="flex-1 pb-28 px-4 z-10 relative">
+            <main className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] px-4 z-10 relative">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={pathname}
@@ -135,7 +135,7 @@ export default function AppLayout({ children, title, headerRight, loading, showB
             {/* FAB Action Buttons */}
             <AnimatePresence>
                 {fabOpen && (
-                    <div className="fixed bottom-32 right-6 z-50 flex flex-col items-end gap-3">
+                    <div className="fixed bottom-[calc(8rem+env(safe-area-inset-bottom,0px))] right-5 z-50 flex flex-col items-end gap-3">
                         {/* Expense */}
                         <motion.button
                             initial={{ opacity: 0, scale: 0.5, y: 20 }}
@@ -173,7 +173,7 @@ export default function AppLayout({ children, title, headerRight, loading, showB
             <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setFabOpen(v => !v)}
-                className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-gradient-to-br from-pink-400 to-rose-500 rounded-2xl shadow-2xl flex items-center justify-center"
+                className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-5 z-50 w-14 h-14 bg-gradient-to-br from-pink-400 to-rose-500 rounded-2xl shadow-2xl flex items-center justify-center"
                 style={{ boxShadow: "0 8px 32px rgba(236, 72, 153, 0.45)" }}
             >
                 <motion.div animate={{ rotate: fabOpen ? 45 : 0 }} transition={{ duration: 0.2 }}>

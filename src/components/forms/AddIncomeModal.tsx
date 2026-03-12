@@ -88,23 +88,23 @@ export default function AddIncomeModal({ isOpen = true, onClose, onSuccess }: Ad
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                     {/* Date */}
-                    <div>
+                    <div className="flex-1">
                         <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1 mb-2 block">Date</label>
                         <input
                             type="date"
-                            className="input !py-3 !text-sm font-bold"
+                            className="input !py-3 !text-sm font-bold w-full"
                             {...register("date", { required: "Date is required" })}
                         />
                     </div>
 
                     {/* Notes */}
-                    <div className="col-span-1">
+                    <div className="flex-1">
                         <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1 mb-2 block">Notes</label>
                         <input
                             type="text"
-                            className="input !py-3 !text-sm font-bold"
+                            className="input !py-3 !text-sm font-bold w-full"
                             placeholder="Optional..."
                             {...register("notes")}
                         />

@@ -149,19 +149,19 @@ export default function AddExpenseModal({ isOpen = true, onClose, onSuccess }: A
                     {/* Category Selection */}
                     <div>
                         <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1 mb-3 block">Category</label>
-                        <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                             {categories.map((cat) => (
                                 <button
                                     key={cat.id}
                                     type="button"
                                     onClick={() => setSelectedCategoryId(cat.id)}
-                                    className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl transition-all ${selectedCategoryId === cat.id
+                                    className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-2xl transition-all ${selectedCategoryId === cat.id
                                         ? "bg-pink-400 text-white shadow-lg shadow-pink-200 scale-105"
                                         : "bg-white text-gray-400 border border-gray-100 hover:border-pink-200"
                                         }`}
                                 >
-                                    <span className="text-xl">{cat.icon}</span>
-                                    <span className="text-[8px] font-black uppercase tracking-tight truncate w-full text-center">{cat.name}</span>
+                                    <span className="text-lg sm:text-xl">{cat.icon}</span>
+                                    <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-tight truncate w-full text-center">{cat.name}</span>
                                 </button>
                             ))}
                             <button
@@ -175,23 +175,23 @@ export default function AddExpenseModal({ isOpen = true, onClose, onSuccess }: A
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                         {/* Date */}
-                        <div>
+                        <div className="flex-1">
                             <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1 mb-2 block">Date</label>
                             <input
                                 type="date"
-                                className="input !py-3 !text-sm font-bold"
+                                className="input !py-3 !text-sm font-bold w-full"
                                 {...register("date", { required: "Date is required" })}
                             />
                         </div>
 
                         {/* Notes */}
-                        <div>
+                        <div className="flex-1">
                             <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1 mb-2 block">Notes</label>
                             <input
                                 type="text"
-                                className="input !py-3 !text-sm font-bold"
+                                className="input !py-3 !text-sm font-bold w-full"
                                 placeholder="Optional..."
                                 {...register("notes")}
                             />

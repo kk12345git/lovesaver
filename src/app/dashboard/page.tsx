@@ -142,7 +142,7 @@ export default function Dashboard() {
                 <motion.div
                     variants={itemVariants}
                     whileHover={{ y: -5 }}
-                    className="relative overflow-hidden bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 rounded-[3rem] p-8 text-white shadow-2xl shadow-pink-200/50 group"
+                    className="relative overflow-hidden bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 text-white shadow-2xl shadow-pink-200/50 group"
                 >
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl -ml-20 -mb-20" />
@@ -168,17 +168,17 @@ export default function Dashboard() {
                             </p>
                         </div>
 
-                        <div className="flex gap-4 pt-6 mt-2 border-t border-white/10">
-                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-4 rounded-[1.5rem] backdrop-blur-md">
+                        <div className="flex gap-3 sm:gap-4 pt-6 mt-2 border-t border-white/10">
+                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-3 sm:p-4 rounded-[1.25rem] sm:rounded-[1.5rem] backdrop-blur-md">
                                 <span className="text-[9px] uppercase font-black text-pink-100/70 tracking-widest">Inflow</span>
-                                <div className="flex items-center gap-1 font-black text-xl">
+                                <div className="flex items-center gap-1 font-black text-lg sm:text-xl">
                                     <ArrowUpRight size={16} className="text-pink-200" />
                                     {formatCurrency(data?.total_income || 0)}
                                 </div>
                             </div>
-                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-4 rounded-[1.5rem] backdrop-blur-md">
+                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-3 sm:p-4 rounded-[1.25rem] sm:rounded-[1.5rem] backdrop-blur-md">
                                 <span className="text-[9px] uppercase font-black text-pink-100/70 tracking-widest">Outflow</span>
-                                <div className="flex items-center gap-1 font-black text-xl">
+                                <div className="flex items-center gap-1 font-black text-lg sm:text-xl">
                                     <ArrowDownRight size={16} className="text-pink-200" />
                                     {formatCurrency(data?.total_expenses || 0)}
                                 </div>
@@ -218,24 +218,24 @@ export default function Dashboard() {
                 )}
 
                 {/* Quick Actions */}
-                <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 sm:gap-4">
                     <button
                         onClick={() => setShowAddExpense(true)}
-                        className="card flex flex-col items-center gap-3 p-6 !bg-white group hover:!bg-pink-400 hover:text-white transition-all transform active:scale-95"
+                        className="card flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 !bg-white group hover:!bg-pink-400 hover:text-white transition-all transform active:scale-95"
                     >
-                        <div className="w-14 h-14 rounded-[1.25rem] bg-pink-50 group-hover:bg-white/20 flex items-center justify-center text-pink-500 group-hover:text-white transition-colors shadow-inner">
-                            <ArrowDownRight size={28} />
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[1rem] sm:rounded-[1.25rem] bg-pink-50 group-hover:bg-white/20 flex items-center justify-center text-pink-500 group-hover:text-white transition-colors shadow-inner">
+                            <ArrowDownRight size={24} className="sm:w-7 sm:h-7" />
                         </div>
-                        <span className="font-black text-[11px] uppercase tracking-widest">Add Expense</span>
+                        <span className="font-black text-[10px] sm:text-[11px] uppercase tracking-widest">Add Expense</span>
                     </button>
                     <button
                         onClick={() => setShowAddIncome(true)}
-                        className="card flex flex-col items-center gap-3 p-6 !bg-white group hover:!bg-pink-400 hover:text-white transition-all transform active:scale-95"
+                        className="card flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 !bg-white group hover:!bg-pink-400 hover:text-white transition-all transform active:scale-95"
                     >
-                        <div className="w-14 h-14 rounded-[1.25rem] bg-pink-50 group-hover:bg-white/20 flex items-center justify-center text-pink-500 group-hover:text-white transition-colors shadow-inner">
-                            <ArrowUpRight size={28} />
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[1rem] sm:rounded-[1.25rem] bg-pink-50 group-hover:bg-white/20 flex items-center justify-center text-pink-500 group-hover:text-white transition-colors shadow-inner">
+                            <ArrowUpRight size={24} className="sm:w-7 sm:h-7" />
                         </div>
-                        <span className="font-black text-[11px] uppercase tracking-widest">Add Income</span>
+                        <span className="font-black text-[10px] sm:text-[11px] uppercase tracking-widest">Add Income</span>
                     </button>
                 </motion.div>
 

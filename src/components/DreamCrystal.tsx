@@ -65,7 +65,7 @@ export default function DreamCrystal({ goals }: { goals: { title: string, value:
     }, [])
 
     if (!mounted) return (
-        <div className="w-full h-[400px] bg-gray-950 rounded-[2.5rem] flex items-center justify-center border border-white/5">
+        <div className="w-full h-[300px] sm:h-[400px] bg-gray-950 rounded-[2.5rem] flex items-center justify-center border border-white/5">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
                 <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Synthesizing Vision...</span>
@@ -74,7 +74,7 @@ export default function DreamCrystal({ goals }: { goals: { title: string, value:
     )
 
     return (
-        <div className="w-full h-[400px] bg-gradient-to-b from-black via-gray-900 to-black rounded-[2.5rem] overflow-hidden relative shadow-2xl group border border-white/10">
+        <div className="w-full h-[300px] sm:h-[400px] bg-gradient-to-b from-black via-gray-900 to-black rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden relative shadow-2xl group border border-white/10">
             <div className="absolute top-8 left-8 z-10">
                 <h3 className="text-white text-lg font-black tracking-tighter">Your Shared Dreams</h3>
                 <p className="text-[10px] font-black text-pink-400 uppercase tracking-[0.2em] mt-1">Live 3D Vision Board</p>
@@ -84,7 +84,7 @@ export default function DreamCrystal({ goals }: { goals: { title: string, value:
                 <Canvas 
                     shadows
                     dpr={[1, 2]} 
-                    camera={{ position: [0, 0, 7], fov: 45 }}
+                    camera={{ position: [0, 0, window.innerWidth < 640 ? 9 : 7], fov: 45 }}
                     gl={{ antialias: true, alpha: true }}
                 >
                     <ambientLight intensity={0.7} />
@@ -93,10 +93,10 @@ export default function DreamCrystal({ goals }: { goals: { title: string, value:
                     
                     <Environment preset="night" />
                     
-                    <Sparkles count={80} scale={7} size={3} speed={0.5} opacity={0.4} color="#fff" />
+                    <Sparkles count={window.innerWidth < 640 ? 40 : 80} scale={7} size={3} speed={0.5} opacity={0.4} color="#fff" />
 
                     {goals.slice(0, 3).map((goal, i) => (
-                        <group key={i} position={[(i - (Math.min(goals.length, 3) - 1) / 2) * 3.5, 0, 0]}>
+                        <group key={i} position={[(i - (Math.min(goals.length, 3) - 1) / 2) * (window.innerWidth < 640 ? 2.5 : 3.5), 0, 0]}>
                             <CrystalGoal {...goal} />
                         </group>
                     ))}
