@@ -1,10 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, Trash2, X, Check } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
-import DreamCrystal from "@/components/DreamCrystal";
+
+// Critical: ssr:false keeps three.js off the server during Vercel build
+const DreamCrystal = dynamic(() => import("@/components/DreamCrystal"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-64 flex items-center justify-center bg-gray-950 rounded-[2.5rem] border border-white/10">
+            <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+    )
+});
+
 
 interface SavingsGoal {
     id: string;

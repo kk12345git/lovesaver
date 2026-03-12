@@ -1,11 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import AppLayout from "@/components/layout/AppLayout";
-import DreamCrystal from "@/components/DreamCrystal";
-import { motion } from "framer-motion";
 import { Sparkles, Target, ArrowRight } from "lucide-react";
 import Link from "next/link";
+
+// Critical: ssr:false prevents three.js from running in Node.js during Vercel build
+const DreamCrystal = dynamic(() => import("@/components/DreamCrystal"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full flex items-center justify-center bg-gray-950 rounded-[3rem] border-2 border-dashed border-pink-900">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs font-black text-pink-400 uppercase tracking-widest">Warping Space...</span>
+            </div>
+        </div>
+    )
+});
 
 interface SavingsGoal {
     id: string;
