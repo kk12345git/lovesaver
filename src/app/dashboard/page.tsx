@@ -16,6 +16,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [showAddExpense, setShowAddExpense] = useState(false);
     const [showAddIncome, setShowAddIncome] = useState(false);
+    const [profile, setProfile] = useState<{ display_name?: string; partner_name?: string; mode?: string } | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -27,16 +28,19 @@ export default function Dashboard() {
             const month = new Date().getMonth() + 1;
             const year = new Date().getFullYear();
 
-            const [summaryRes, insightsRes] = await Promise.all([
+            const [summaryRes, insightsRes, profileRes] = await Promise.all([
                 fetch(`/api/insights?month=${month}&year=${year}`),
                 fetch(`/api/insights?month=${month}&year=${year}&type=insights`),
+                fetch(`/api/profile`),
             ]);
 
             const summaryData = await summaryRes.json();
             const insightsData = await insightsRes.json();
+            const profileData = await profileRes.json();
 
             setData(summaryData);
             setInsights(insightsData);
+            setProfile(profileData);
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
         } finally {
@@ -101,9 +105,27 @@ export default function Dashboard() {
                     <h2 className="text-[10px] font-black text-pink-400 uppercase tracking-[0.2em]">
                         {getMonthName(new Date().getMonth() + 1)} Overview
                     </h2>
-                    <div className="flex items-center gap-2">
-                        <h3 className="text-3xl font-black text-gray-800 tracking-tight">Hello, Love!</h3>
-                        <span className="text-2xl animate-bounce">💖</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {profile?.mode === "couple" && profile.partner_name ? (
+                            <>
+                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">
+                                    {profile.display_name} &amp; {profile.partner_name}
+                                </h3>
+                                <span className="text-2xl">💑</span>
+                            </>
+                        ) : profile?.display_name ? (
+                            <>
+                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">
+                                    Hey, {profile.display_name}!
+                                </h3>
+                                <span className="text-2xl animate-bounce">💖</span>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">Hello, Love!</h3>
+                                <span className="text-2xl animate-bounce">💖</span>
+                            </>
+                        )}
                     </div>
                 </motion.div>
 
