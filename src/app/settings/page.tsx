@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { User, Heart, Coins, Shield, LogOut, ChevronRight, Check } from "lucide-react";
+import { User, Heart, Coins, Shield, LogOut, ChevronRight, Check, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { logout } from "@/app/auth/actions";
 
@@ -102,6 +102,49 @@ export default function SettingsPage() {
                                     value={profile?.partner_name || ""}
                                     onChange={e => setProfile({ ...profile, partner_name: e.target.value })}
                                 />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sync & Connectivity Section */}
+                    <div className="card !p-8 flex flex-col gap-6 !bg-white/60 backdrop-blur-2xl border-white">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                             <Zap size={14} className="text-pink-400" /> LifeStyle Sync
+                        </h4>
+
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-white">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your Private ID</span>
+                                    <p className="text-xs font-bold text-gray-600 truncate max-w-[150px]">{profile?.id?.substring(0, 12)}...</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onClick={() => navigator.clipboard.writeText(profile?.id)}
+                                    className="px-4 py-2 bg-gray-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-700 transition-colors shadow-lg shadow-gray-200"
+                                >
+                                    Copy
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest ml-1">Partner Email / ID</label>
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter partner's email..." 
+                                        className="flex-1 bg-white border-gray-100 p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-pink-400 transition-all outline-none"
+                                    />
+                                    <button 
+                                        type="button"
+                                        className="px-6 py-4 bg-gradient-to-tr from-pink-500 to-rose-400 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-pink-200 hover:scale-105 transition-transform"
+                                    >
+                                        Link
+                                    </button>
+                                </div>
+                                <p className="text-[10px] font-medium text-gray-400 mt-1 italic px-1">
+                                    * Linking will share your expense tracking and goal progress in real-time.
+                                </p>
                             </div>
                         </div>
                     </div>

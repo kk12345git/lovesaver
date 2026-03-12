@@ -28,6 +28,19 @@ CREATE TABLE IF NOT EXISTS income_entries (
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- ============================================
+-- 2.5 Profiles (OS Foundation)
+-- ============================================
+CREATE TABLE IF NOT EXISTS profiles (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    display_name TEXT,
+    mode TEXT DEFAULT 'single', -- 'single', 'couple'
+    partner_id UUID REFERENCES profiles(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(user_id)
+);
 -- ============================================
 -- 3. Expense Entries
 -- ============================================

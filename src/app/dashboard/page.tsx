@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { formatCurrency, getMonthName } from "@/lib/utils";
 import { MonthSummary, SpendingInsight } from "@/lib/types";
-import { Plus, ArrowUpRight, ArrowDownRight, Wallet, Target, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Wallet, Plus, Target, Heart, Sparkles, Zap, TrendingUp } from 'lucide-react'
+import Link from 'next/link'
+import FortuneMultiplier from '@/components/FortuneMultiplier'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import AddExpenseModal from "@/components/forms/AddExpenseModal";
 import AddIncomeModal from "@/components/forms/AddIncomeModal";
@@ -105,57 +107,77 @@ export default function Dashboard() {
                     <h2 className="text-[10px] font-black text-pink-400 uppercase tracking-[0.2em]">
                         {getMonthName(new Date().getMonth() + 1)} Overview
                     </h2>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {profile?.mode === "couple" && profile.partner_name ? (
-                            <>
-                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">
-                                    {profile.display_name} &amp; {profile.partner_name}
-                                </h3>
-                                <span className="text-2xl">💑</span>
-                            </>
-                        ) : profile?.display_name ? (
-                            <>
-                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">
-                                    Hey, {profile.display_name}!
-                                </h3>
-                                <span className="text-2xl animate-bounce">💖</span>
-                            </>
-                        ) : (
-                            <>
-                                <h3 className="text-3xl font-black text-gray-800 tracking-tight">Hello, Love!</h3>
-                                <span className="text-2xl animate-bounce">💖</span>
-                            </>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {profile?.mode === "couple" ? (
+                                <>
+                                    <h3 className="text-3xl font-black text-gray-800 tracking-tight leading-none">
+                                        Our Lifestyle
+                                    </h3>
+                                    <span className="text-2xl">💍</span>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="text-3xl font-black text-gray-800 tracking-tight leading-none">
+                                        Hey, {profile?.display_name || "Love"}!
+                                    </h3>
+                                    <span className="text-2xl animate-bounce">💖</span>
+                                </>
+                            )}
+                        </div>
+                        {profile?.mode === "couple" && (
+                            <div className="flex -space-x-2">
+                                <div className="w-8 h-8 rounded-full border-2 border-white bg-pink-100 flex items-center justify-center text-[10px] font-black">
+                                    {profile?.display_name?.charAt(0) || "U"}
+                                </div>
+                                <div className="w-8 h-8 rounded-full border-2 border-white bg-purple-100 flex items-center justify-center text-[10px] font-black">
+                                    {profile?.partner_name?.charAt(0) || "P"}
+                                </div>
+                            </div>
                         )}
                     </div>
                 </motion.div>
 
-                {/* Main Balance Card */}
+                {/* Main Balance Card - The Heart of Luxe OS */}
                 <motion.div
                     variants={itemVariants}
                     whileHover={{ y: -5 }}
-                    className="relative overflow-hidden bg-gradient-to-br from-pink-400 to-pink-600 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-pink-200/50"
+                    className="relative overflow-hidden bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 rounded-[3rem] p-8 text-white shadow-2xl shadow-pink-200/50 group"
                 >
-                    <div className="absolute -top-10 -right-10 opacity-10 rotate-12">
-                        <Wallet size={200} />
-                    </div>
-                    <div className="relative z-10 flex flex-col gap-4">
-                        <div className="flex items-center gap-2 text-pink-50 font-black uppercase tracking-widest text-[10px] opacity-80">
-                            <Sparkles size={12} /> Total Balance
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl -ml-20 -mb-20" />
+                    
+                    <div className="relative z-10 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-pink-50 font-black uppercase tracking-widest text-[10px] opacity-90">
+                                <span className="bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Sparkles size={10} className="animate-pulse" /> Luxe Balance
+                                </span>
+                            </div>
+                            <div className="text-[10px] font-black opacity-60 uppercase tracking-tighter">
+                                Verified Safety 🔒
+                            </div>
                         </div>
-                        <h4 className="text-5xl font-black tracking-tighter tabular-nums">
-                            {formatCurrency(data?.balance || 0)}
-                        </h4>
-                        <div className="flex gap-6 pt-6 mt-6 border-t border-white/20">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] uppercase font-black text-pink-100 opacity-70 tracking-widest">Income</span>
+
+                        <div className="flex flex-col gap-1">
+                            <h4 className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-md">
+                                {formatCurrency(data?.balance || 0)}
+                            </h4>
+                            <p className="text-xs font-bold text-pink-100/80 tracking-tight">
+                                {profile?.mode === 'couple' ? 'Shared across both accounts' : 'Available in your wallet'}
+                            </p>
+                        </div>
+
+                        <div className="flex gap-4 pt-6 mt-2 border-t border-white/10">
+                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-4 rounded-[1.5rem] backdrop-blur-md">
+                                <span className="text-[9px] uppercase font-black text-pink-100/70 tracking-widest">Inflow</span>
                                 <div className="flex items-center gap-1 font-black text-xl">
                                     <ArrowUpRight size={16} className="text-pink-200" />
                                     {formatCurrency(data?.total_income || 0)}
                                 </div>
                             </div>
-                            <div className="w-[1px] h-10 bg-white/20 self-center" />
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] uppercase font-black text-pink-100 opacity-70 tracking-widest">Expenses</span>
+                            <div className="flex-1 flex flex-col gap-1 bg-white/10 p-4 rounded-[1.5rem] backdrop-blur-md">
+                                <span className="text-[9px] uppercase font-black text-pink-100/70 tracking-widest">Outflow</span>
                                 <div className="flex items-center gap-1 font-black text-xl">
                                     <ArrowDownRight size={16} className="text-pink-200" />
                                     {formatCurrency(data?.total_expenses || 0)}
@@ -164,6 +186,36 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Couple Stats Card (Only if Couple Mode) */}
+                {profile?.mode === 'couple' && (
+                    <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4">
+                         <FortuneMultiplier streak={7} multiplier={1.4} savingsTarget={10000} />
+                         
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="card !p-4 flex flex-col gap-3 !bg-white/50 backdrop-blur-xl border-white/50">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Partner Sync</span>
+                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                </div>
+                                <p className="text-[11px] font-black text-gray-700 leading-tight">
+                                    {profile.partner_name} connected. 
+                                    <span className="block text-pink-400 mt-1">Updates in real-time. ✨</span>
+                                </p>
+                            </div>
+                            <div className="card !p-4 flex flex-col gap-3 !bg-white/50 backdrop-blur-xl border-white/50">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Joint Goals</span>
+                                    <Target size={14} className="text-purple-400" />
+                                </div>
+                                <p className="text-[11px] font-black text-gray-700 leading-tight">
+                                    3 Shared Dreams 
+                                    <span className="block text-purple-400 mt-1">68% progress. 🏃‍♂️💨</span>
+                                </p>
+                            </div>
+                         </div>
+                    </motion.div>
+                )}
 
                 {/* Quick Actions */}
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">

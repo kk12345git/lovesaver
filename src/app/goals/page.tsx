@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, Trash2, X, Check } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
+import DreamCrystal from "@/components/DreamCrystal";
 
 interface SavingsGoal {
     id: string;
@@ -91,6 +92,21 @@ export default function GoalsPage() {
                         </button>
                     </div>
                 </div>
+
+                {/* 3D Vision Board */}
+                {!loading && goals.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mb-6"
+                    >
+                        <DreamCrystal goals={goals.slice(0, 3).map((g, i) => ({
+                            title: g.name,
+                            value: formatCurrency(g.target_amount),
+                            color: ["#ff72b6", "#fbbf24", "#60a5fa"][i % 3]
+                        }))} />
+                    </motion.div>
+                )}
 
                 {/* Goals List */}
                 {loading ? (

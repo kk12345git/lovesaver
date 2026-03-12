@@ -25,22 +25,34 @@ export async function GET(req: NextRequest) {
     const nextYear = month === 12 ? year + 1 : year;
     const endDate = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
 
-    // 1. Fetch all data for the user/month
+    // 1. Fetch user profile to check for partnership
+    const { data: profile } = await supabase.from("profiles").select("mode, partner_id").eq("id", user.id).maybeSingle();
+    const isCouple = profile?.mode === 'couple';
+    const partnerId = profile?.partner_id;
+
+    // Build the user IDs filter
+    const userIds = [user.id];
+    if (isCouple && partnerId) {
+        userIds.push(partnerId);
+    }
+
+    // 2. Fetch all data for the user(s)/month
     const [incomeRes, expenseRes, budgetRes, categoryRes] = await Promise.all([
-        supabase.from("income_entries").select("amount").eq("user_id", user.id).gte("date", startDate).lt("date", endDate),
-        supabase.from("expense_entries").select("amount, category_id").eq("user_id", user.id).gte("date", startDate).lt("date", endDate),
-        supabase.from("budgets").select("amount").eq("user_id", user.id).eq("month", month).eq("year", year).maybeSingle(),
-        supabase.from("expense_categories").select("*").or(`user_id.eq.${user.id},is_default.eq.true`)
+        supabase.from("income_entries").select("amount").in("user_id", userIds).gte("date", startDate).lt("date", endDate),
+        supabase.from("expense_entries").select("amount, category_id").in("user_id", userIds).gte("date", startDate).lt("date", endDate),
+        supabase.from("budgets").select("amount").in("user_id", userIds).eq("month", month).eq("year", year),
+        supabase.from("expense_categories").select("*").or(`user_id.in.(${userIds.join(',')}),is_default.eq.true`)
     ]);
 
     const income = incomeRes.data || [];
     const expenses = expenseRes.data || [];
-    const budget = budgetRes.data;
+    // If couple, we aggregate budgets or take the first one found for simplicity
+    const budgets = budgetRes.data || [];
+    const monthlyBudget = budgets.reduce((sum: number, b: any) => sum + (b.amount || 0), 0);
     const categories = categoryRes.data || [];
 
     const totalIncome = income.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
     const totalExpenses = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
-    const monthlyBudget = budget?.amount || 0;
 
     // 2. Calculate category breakdown (grouped by name to avoid duplicates)
     const categoryMap: Record<string, { amount: number, color: string, icon: string, id: string }> = {};
