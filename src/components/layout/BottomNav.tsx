@@ -13,10 +13,10 @@ import {
 
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Home" },
-    { href: "/income", icon: TrendingUp, label: "Income" },
-    { href: "/expenses", icon: Receipt, label: "Expenses" },
-    { href: "/goals", icon: Star, label: "Goals" },
+    { href: "/vision", icon: Star, label: "Vision" },
+    { href: "/goals", icon: Target, label: "Goals" },
     { href: "/insights", icon: Lightbulb, label: "Insights" },
+    { href: "/settings", icon: Receipt, label: "Settings" },
 ];
 
 export default function BottomNav() {

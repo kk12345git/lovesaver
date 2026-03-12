@@ -1,0 +1,17 @@
+{
+  "name": "LoveSaver 💕",
+  "short_name": "LoveSaver",
+  "description": "Premium 3D Finance Tracker for Couples",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF0F6",
+  "theme_color": "#FF6FAE",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

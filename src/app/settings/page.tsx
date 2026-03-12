@@ -18,10 +18,30 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [isInstallable, setIsInstallable] = useState(false);
 
     useEffect(() => {
         fetchProfile();
+
+        const handleBeforeInstall = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setIsInstallable(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     }, []);
+
+    const handleInstall = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setIsInstallable(false);
+        }
+    };
 
     const fetchProfile = async () => {
         try {
@@ -106,10 +126,50 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
+                    {/* App Experiences (PWA & Layout) */}
+                    <div className="card !p-8 flex flex-col gap-6 !bg-gradient-to-br from-pink-50 to-white border-pink-100">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                             <Zap size={14} className="text-pink-400" /> App Experience
+                        </h4>
+
+                        <div className="flex flex-col gap-4">
+                            {isInstallable && (
+                                <button 
+                                    type="button"
+                                    onClick={handleInstall}
+                                    className="w-full p-6 bg-pink-500 text-white rounded-3xl flex flex-col items-center gap-2 shadow-xl shadow-pink-100 border-2 border-pink-400/20 hover:scale-[1.02] transition-transform"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Download App</span>
+                                    <span className="text-lg font-black italic">Install LoveSaver ✨</span>
+                                </button>
+                            )}
+
+                            <div className="flex items-center justify-between p-4 bg-white/60 rounded-2xl border border-white">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Push Notifications</span>
+                                    <p className="text-[10px] font-bold text-gray-500">Enable savings alerts</p>
+                                </div>
+                                <div className="w-12 h-6 bg-pink-100 rounded-full relative p-1 cursor-pointer">
+                                    <div className="w-4 h-4 bg-pink-500 rounded-full shadow-sm shadow-pink-200" />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-white/60 rounded-2xl border border-white opacity-50">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Luxe Dark Mode</span>
+                                    <p className="text-[10px] font-bold text-gray-500">Coming soon in v4.0</p>
+                                </div>
+                                <div className="w-12 h-6 bg-gray-100 rounded-full relative p-1">
+                                    <div className="w-4 h-4 bg-gray-300 rounded-full shadow-sm" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Sync & Connectivity Section */}
                     <div className="card !p-8 flex flex-col gap-6 !bg-white/60 backdrop-blur-2xl border-white">
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                             <Zap size={14} className="text-pink-400" /> LifeStyle Sync
+                             <Heart size={14} className="text-pink-400" /> LifeStyle Sync
                         </h4>
 
                         <div className="flex flex-col gap-4">
@@ -152,7 +212,7 @@ export default function SettingsPage() {
                     {/* Currency */}
                     <div className="card !p-8 flex flex-col gap-6">
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <Coins size={14} /> App Preferences
+                            <Coins size={14} /> Currency Preferences
                         </h4>
 
                         <div>

@@ -2,15 +2,22 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "LoveSaver 💕 - Your Personal Finance Tracker",
-    description: "Track your income and expenses, manage budgets, and build better saving habits.",
+    title: "LoveSaver 💕 - Premium Finance Tracker",
+    description: "Your safe financial sanctuary. Track, save, and grow together.",
     manifest: "/manifest.json",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "LoveSaver",
+    },
 };
 
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
     maximumScale: 1,
+    userScalable: false,
+    themeColor: "#FF6FAE",
 };
 
 export default function RootLayout({

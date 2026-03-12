@@ -16,7 +16,27 @@ export async function GET() {
         .eq('id', userId)
         .maybeSingle();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+        console.error("Profile API Error:", error);
+        return NextResponse.json({
+            id: userId,
+            full_name: "Luxe Explorer",
+            mode: "individual",
+            currency: "INR",
+            onboarding_completed: false
+        });
+    }
+
+    if (!data) {
+        return NextResponse.json({
+            id: userId,
+            full_name: "Luxe Explorer",
+            mode: "individual",
+            currency: "INR",
+            onboarding_completed: false
+        });
+    }
+
     return NextResponse.json(data);
 }
 

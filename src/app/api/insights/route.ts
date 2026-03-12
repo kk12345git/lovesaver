@@ -37,11 +37,13 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Fetch all data for the user(s)/month
+    const orFilter = `is_default.eq.true,user_id.eq.${user.id}${partnerId ? `,user_id.eq.${partnerId}` : ''}`;
+    
     const [incomeRes, expenseRes, budgetRes, categoryRes] = await Promise.all([
         supabase.from("income_entries").select("amount").in("user_id", userIds).gte("date", startDate).lt("date", endDate),
         supabase.from("expense_entries").select("amount, category_id").in("user_id", userIds).gte("date", startDate).lt("date", endDate),
         supabase.from("budgets").select("amount").in("user_id", userIds).eq("month", month).eq("year", year),
-        supabase.from("expense_categories").select("*").or(`user_id.in.(${userIds.join(',')}),is_default.eq.true`)
+        supabase.from("expense_categories").select("*").or(orFilter)
     ]);
 
     const income = incomeRes.data || [];
