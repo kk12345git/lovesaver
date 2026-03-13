@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Target, Trash2, X, Check } from "lucide-react";
+import { Plus, Target, Trash2, X, Check, Sparkles } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import Modal from "@/components/ui/Modal";
+import VisionBoardModal from "@/components/ui/VisionBoardModal";
 
 // Critical: ssr:false keeps three.js off the server during Vercel build
 const DreamCrystal = dynamic(() => import("@/components/DreamCrystal"), {
@@ -39,6 +40,7 @@ export default function GoalsPage() {
     const [goals, setGoals] = useState<SavingsGoal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAdd, setShowAdd] = useState(false);
+    const [sharingGoal, setSharingGoal] = useState<SavingsGoal | null>(null);
     const [form, setForm] = useState({ name: "", icon: "🎯", target_amount: "", deadline: "" });
 
     const fetchGoals = async () => {
@@ -170,13 +172,20 @@ export default function GoalsPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-1">
                                                 <h4 className="font-black text-gray-800 truncate">{goal.name}</h4>
-                                                <div className="flex items-center gap-2 ml-2">
-                                                    {isComplete && <span className="text-xs bg-green-100 text-green-600 font-black px-2 py-0.5 rounded-full">Done! 🎉</span>}
+                                                <div className="flex items-center gap-1 ml-2">
+                                                    {isComplete && <span className="text-xs bg-green-100 text-green-600 font-black px-2 py-0.5 rounded-full mr-1">Done! 🎉</span>}
+                                                    <button
+                                                        onClick={() => setSharingGoal(goal)}
+                                                        className="text-pink-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors p-1.5"
+                                                        title="Share Vision Board"
+                                                    >
+                                                        <Sparkles size={16} />
+                                                    </button>
                                                     <button
                                                         onClick={() => handleDelete(goal.id)}
-                                                        className="text-gray-300 hover:text-red-400 transition-colors p-1"
+                                                        className="text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors p-1.5"
                                                     >
-                                                        <Trash2 size={14} />
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -276,6 +285,13 @@ export default function GoalsPage() {
                     </button>
                 </div>
             </Modal>
+
+            {/* Vision Board Sharing Modal */}
+            <VisionBoardModal 
+                isOpen={!!sharingGoal} 
+                onClose={() => setSharingGoal(null)} 
+                goal={sharingGoal} 
+            />
         </AppLayout>
     );
 }
