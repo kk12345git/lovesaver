@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
-    Receipt,
+    Settings,
     Target,
     Lightbulb,
     Star,
@@ -15,7 +15,7 @@ const navItems = [
     { href: "/vision",    icon: Star,            label: "Vision" },
     { href: "/goals",     icon: Target,           label: "Goals" },
     { href: "/insights",  icon: Lightbulb,        label: "Insights" },
-    { href: "/settings",  icon: Receipt,          label: "Settings" },
+    { href: "/settings",  icon: Settings,         label: "Settings" },
 ];
 
 export default function BottomNav() {
