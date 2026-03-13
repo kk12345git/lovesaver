@@ -32,27 +32,29 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+            className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center"
             onClick={(e) => e.target === overlayRef.current && onClose()}
         >
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
             {/* Modal panel */}
-            <div className="relative w-full max-w-lg slide-up bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl pb-safe overflow-hidden">
+            <div className="relative w-full max-w-lg slide-up bg-white rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-pink-100">
-                    <h2 className="text-lg font-bold text-gray-800">{title}</h2>
+                <div className="flex items-center justify-between px-6 py-5 border-b border-pink-100 flex-shrink-0">
+                    <h2 className="text-xl font-black text-gray-800">{title}</h2>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-400 transition-colors"
                     >
-                        <X size={18} />
+                        <X size={20} />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-5 overflow-y-auto max-h-[80vh]">{children}</div>
+                <div className="p-6 overflow-y-auto" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
+                    {children}
+                </div>
             </div>
         </div>
     );

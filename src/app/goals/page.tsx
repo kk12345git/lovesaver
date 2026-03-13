@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, Trash2, X, Check } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
+import Modal from "@/components/ui/Modal";
 
 // Critical: ssr:false keeps three.js off the server during Vercel build
 const DreamCrystal = dynamic(() => import("@/components/DreamCrystal"), {
@@ -215,91 +216,66 @@ export default function GoalsPage() {
             </div>
 
             {/* Add Goal Bottom Sheet */}
-            <AnimatePresence>
-                {showAdd && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
-                            onClick={() => setShowAdd(false)}
-                        />
-                        <motion.div
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] p-6 z-50 shadow-2xl max-w-md mx-auto"
-                        >
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-xl font-black text-gray-800">New Savings Goal</h3>
-                                <button onClick={() => setShowAdd(false)} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                                    <X size={18} className="text-gray-500" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-4">
-                                {/* Icon Picker */}
-                                <div>
-                                    <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Pick an Icon</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {GOAL_ICONS.map(icon => (
-                                            <button
-                                                key={icon}
-                                                onClick={() => setForm({ ...form, icon })}
-                                                className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.icon === icon ? "bg-pink-100 scale-110 shadow-md" : "bg-gray-50 hover:bg-pink-50"}`}
-                                            >
-                                                {icon}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Goal Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Dream Vacation"
-                                        className="input"
-                                        value={form.name}
-                                        onChange={e => setForm({ ...form, name: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Target Amount</label>
-                                    <input
-                                        type="number"
-                                        placeholder="₹50,000"
-                                        className="input"
-                                        value={form.target_amount}
-                                        onChange={e => setForm({ ...form, target_amount: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Target Date (Optional)</label>
-                                    <input
-                                        type="month"
-                                        className="input"
-                                        value={form.deadline}
-                                        onChange={e => setForm({ ...form, deadline: e.target.value })}
-                                    />
-                                </div>
-
+            {/* Add Goal Modal */}
+            <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="New Savings Goal">
+                <div className="space-y-4">
+                    {/* Icon Picker */}
+                    <div>
+                        <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Pick an Icon</label>
+                        <div className="flex flex-wrap gap-2">
+                            {GOAL_ICONS.map(icon => (
                                 <button
-                                    onClick={handleAdd}
-                                    disabled={!form.name || !form.target_amount}
-                                    className="btn-primary w-full !py-4 flex items-center justify-center gap-2 disabled:opacity-40"
+                                    key={icon}
+                                    onClick={() => setForm({ ...form, icon })}
+                                    className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.icon === icon ? "bg-pink-100 scale-110 shadow-md" : "bg-gray-50 hover:bg-pink-50"}`}
                                 >
-                                    <Check size={18} /> Save Goal
+                                    {icon}
                                 </button>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Goal Name</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. Dream Vacation"
+                            className="input"
+                            value={form.name}
+                            onChange={e => setForm({ ...form, name: e.target.value })}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Target Amount</label>
+                        <input
+                            type="number"
+                            placeholder="₹50,000"
+                            className="input"
+                            value={form.target_amount}
+                            onChange={e => setForm({ ...form, target_amount: e.target.value })}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-2 block">Target Date (Optional)</label>
+                        <input
+                            type="month"
+                            className="input"
+                            value={form.deadline}
+                            onChange={e => setForm({ ...form, deadline: e.target.value })}
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleAdd}
+                        disabled={!form.name || !form.target_amount}
+                        className="btn-primary w-full !py-4 flex items-center justify-center gap-2 disabled:opacity-40"
+                    >
+                        <Check size={18} /> Save Goal
+                    </button>
+                </div>
+            </Modal>
         </AppLayout>
     );
 }
