@@ -104,14 +104,14 @@ export default function AppLayout({ children, title, headerRight, loading, showB
             )}
 
             {/* Main content */}
-            <main className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] px-4 z-10 relative">
+            <main className="flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] px-4 z-10 relative">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={pathname}
-                        initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                        initial={{ opacity: 0, y: 60, scale: 0.97 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className="w-full"
                     >
                         {children}

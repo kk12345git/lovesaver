@@ -40,6 +40,7 @@ export default function GoalsPage() {
     const [goals, setGoals] = useState<SavingsGoal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAdd, setShowAdd] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [sharingGoal, setSharingGoal] = useState<SavingsGoal | null>(null);
     const [form, setForm] = useState({ name: "", icon: "🎯", target_amount: "", deadline: "" });
 
@@ -55,14 +56,19 @@ export default function GoalsPage() {
 
     const handleAdd = async () => {
         if (!form.name || !form.target_amount) return;
-        await fetch("/api/goals", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...form, target_amount: Number(form.target_amount) })
-        });
-        setForm({ name: "", icon: "🎯", target_amount: "", deadline: "" });
-        setShowAdd(false);
-        fetchGoals();
+        setIsSubmitting(true);
+        try {
+            await fetch("/api/goals", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...form, target_amount: Number(form.target_amount) })
+            });
+            setForm({ name: "", icon: "🎯", target_amount: "", deadline: "" });
+            setShowAdd(false);
+            fetchGoals();
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -79,7 +85,7 @@ export default function GoalsPage() {
 
     return (
         <AppLayout title="Savings Goals" showBack>
-            <div className="space-y-4 pb-8">
+            <div className="space-y-4 pb-2">
                 {/* Header card */}
                 <div className="card bg-gradient-to-br from-pink-400 to-purple-500 text-white">
                     <div className="flex items-center gap-3 mb-2">
@@ -278,10 +284,16 @@ export default function GoalsPage() {
 
                     <button
                         onClick={handleAdd}
-                        disabled={!form.name || !form.target_amount}
+                        disabled={!form.name || !form.target_amount || isSubmitting}
                         className="btn-primary w-full !py-4 flex items-center justify-center gap-2 disabled:opacity-40"
                     >
-                        <Check size={18} /> Save Goal
+                        {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <Check size={18} /> Save Goal
+                            </>
+                        )}
                     </button>
                 </div>
             </Modal>
